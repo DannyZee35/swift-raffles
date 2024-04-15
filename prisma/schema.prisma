@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Raffle {
+  id                    String        @id @default(uuid())
+  name                  String
+  url                   String
+  chain                 String?
+  spots                 Int
+  start_time            DateTime      @db.Date
+  end_time              DateTime      @db.Date
+  banner_url            String?
+  description           String?
+  show_avatar           Boolean
+  styles                String[]
+  auto_finalize         Boolean
+  auto_announce         Boolean
+  announcement_channel  String?
+  winner_channel        String?
+  mint_reminder_channel String?
+  create_winners_thread Boolean
+  create_winners_role   Boolean
+  discord_ping          String?
+  winner_private_msg    String?
+  winner_public_msg     String?
+  winner_invite_codes   String[]
+  direct_to_contract    Boolean
+  req_email             Boolean
+  req_wallet            Boolean
+  req_discord           Boolean
+  req_twitter           Boolean
+  req_password          Boolean
+  password              String?
+  req_captcha           Boolean
+  questions             String[]
+  teamId                String
+  active                Boolean
+  guildId               String
+  Team                  Team          @relation(fields: [teamId], references: [id])
+  RaffleEntry           RaffleEntry[]
+  User                  User[]
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Team {
+  id         String       @id @default(uuid())
+  userId     String
+  guild_id   String       @unique
+  Raffle     Raffle[]
+  User       User         @relation(fields: [userId], references: [id])
+  TeamMember TeamMember[]
+}
+
+model TeamMember {
+  id     String  @id @default(uuid())
+  role   String
+  teamId String?
+  userId String
+  Team   Team?   @relation(fields: [teamId], references: [id])
+  User   User    @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id            String        @id
+  name          String?
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  raffleId      String?
+  wallets       String[]
+  Account       Account[]
+  RaffleEntry   RaffleEntry[]
+  Session       Session[]
+  Team          Team[]
+  TeamMember    TeamMember[]
+  Raffle        Raffle?       @relation(fields: [raffleId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model RaffleEntry {
+  id        String   @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  submitted Boolean
+  answers   String[]
+  email     String?
+  wallet    String?
+  discord   String?
+  twitter   String?
+  password  String?
+  userId    String
+  raffleId  String
+  Raffle    Raffle   @relation(fields: [raffleId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
+}

@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.css-19bbe1x {
+  -webkit-padding-start: 5% !important;
+  padding-inline-start: 5% !important;
+  padding-right: 5% !important;
+}
+
+@media only screen and (max-width: 768px) {
+    .css-19bbe1x {
+      padding-inline-start: 0% !important;
+      -webkit-padding-start: 0% !important;
+    }
+  }
+  
+ 
